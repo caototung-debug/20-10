@@ -42,10 +42,10 @@
             pointer-events: none;
         }
 
-        /* Khối trang đầu (Hero section) để lấp đầy không gian trống */
+        /* Khối tiêu đề trang đầu */
         .hero-banner {
             position: absolute;
-            top: 15%;
+            top: 10%;
             text-align: center;
             pointer-events: auto;
             transition: opacity 0.8s ease, transform 0.8s ease;
@@ -63,8 +63,8 @@
             color: #ffb7c5;
             font-size: 2.8rem;
             font-family: 'Georgia', serif;
-            margin-bottom: 10px;
-            text-shadow: 0 0 20px rgba(255, 105, 180, 0.8);
+            margin-bottom: 8px;
+            text-shadow: 0 0 20px rgba(255, 105, 180, 0.9);
         }
 
         .hero-banner p {
@@ -75,7 +75,7 @@
         }
 
         .card {
-            background: rgba(30, 10, 25, 0.85);
+            background: rgba(30, 10, 25, 0.88);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 150, 180, 0.4);
@@ -134,7 +134,7 @@
 
         #start-btn {
             position: absolute;
-            bottom: 60px;
+            bottom: 50px;
         }
     </style>
 </head>
@@ -143,7 +143,7 @@
     <canvas id="canvas"></canvas>
 
     <div class="ui-container">
-        <!-- Tiêu đề trang đầu làm đầy không gian trống -->
+        <!-- Banner trang đầu -->
         <div id="hero-banner" class="hero-banner">
             <h2>Khu Vườn Hồng 20/10 🌹</h2>
             <p>Nơi gửi gắm những lời chúc tốt đẹp nhất dành riêng cho chị</p>
@@ -151,7 +151,7 @@
 
         <button id="start-btn" class="btn" onclick="startJourney()">🌹 Mời Chị Tiến Vào Khu Vườn</button>
 
-        <!-- Hộp thiệp chúc mừng với lời chúc tinh tế, lịch sự -->
+        <!-- Thiệp lời chúc -->
         <div id="wish-card" class="card">
             <h1>Chúc Mừng Ngày 20/10 ✨</h1>
             <div class="wish-content">
@@ -195,7 +195,7 @@
         }
 
         // Đom đóm lấp lánh
-        for (let i = 0; i < 40; i++) {
+        for (let i = 0; i < 45; i++) {
             fireflies.push({
                 x: Math.random() * width,
                 y: Math.random() * height,
@@ -230,7 +230,7 @@
             });
         }
 
-        // --- HÀM VẼ BÔNG HOA HỒNG HOÀN CHỈNH ---
+        // --- HÀM VẼ HOA HỒNG CHI TIẾT ---
         function drawCompleteRose(x, y, scale) {
             ctx.save();
             ctx.translate(x, y);
@@ -291,7 +291,52 @@
             ctx.restore();
         }
 
-        // Vẽ con đường và hàng hoa hồng hai bên
+        // --- HÀM VẼ CỔNG HOA HỒNG & MẶT TRĂNG ĐỂ LẤP ĐẦY KHOẢNG TRỐNG ---
+        function drawRoseArch(centerX, centerY, archWidth, archHeight) {
+            ctx.save();
+            
+            // 1. Mặt trăng huyền ảo phía sau cổng
+            const moonRadius = archWidth * 0.55;
+            const moonGlow = ctx.createRadialGradient(centerX, centerY - 20, 10, centerX, centerY - 20, moonRadius * 1.8);
+            moonGlow.addColorStop(0, 'rgba(255, 230, 245, 0.95)');
+            moonGlow.addColorStop(0.3, 'rgba(255, 105, 180, 0.4)');
+            moonGlow.addColorStop(1, 'transparent');
+
+            ctx.fillStyle = moonGlow;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY - 20, moonRadius * 1.8, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#fff0f5';
+            ctx.beginPath();
+            ctx.arc(centerX, centerY - 20, moonRadius * 0.5, 0, Math.PI * 2);
+            ctx.fill();
+
+            // 2. Mái vòm cổng
+            ctx.strokeStyle = '#3a1e32';
+            ctx.lineWidth = 12;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, archWidth / 2, Math.PI, 0);
+            ctx.stroke();
+
+            ctx.strokeStyle = '#ff80ab';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // 3. Kết các bông hoa hồng lên khắp vòm cổng
+            const numArchRoses = 11;
+            for (let i = 0; i < numArchRoses; i++) {
+                const angle = Math.PI + (i / (numArchRoses - 1)) * Math.PI;
+                const rx = centerX + Math.cos(angle) * (archWidth / 2);
+                const ry = centerY + Math.sin(angle) * (archWidth / 2);
+
+                drawCompleteRose(rx, ry, 0.5 + Math.sin(i) * 0.1);
+            }
+
+            ctx.restore();
+        }
+
+        // Vẽ con đường
         function drawPath() {
             ctx.save();
             
@@ -299,8 +344,13 @@
             const endW = width * 0.12 + (progress * width * 0.15);
             
             const startY = height;
-            const endY = height * 0.4 + (progress * height * 0.12);
+            const endY = height * 0.42 + (progress * height * 0.12);
 
+            // Vẽ Cổng hoa ở cuối con đường
+            const archW = endW * 2.2;
+            drawRoseArch(width / 2, endY, archW, archW * 0.8);
+
+            // Vẽ mặt đường
             const gradient = ctx.createLinearGradient(0, startY, 0, endY);
             gradient.addColorStop(0, '#3a1e32');
             gradient.addColorStop(1, '#15061c');
@@ -326,6 +376,7 @@
             ctx.quadraticCurveTo(width / 2 + 40, (startY + endY) / 2, width / 2 + endW / 2, endY);
             ctx.stroke();
 
+            // Hàng hoa hồng dọc đường
             const numRoses = 10;
             for (let i = 0; i < numRoses; i++) {
                 const t = i / numRoses;
@@ -343,7 +394,7 @@
             ctx.restore();
         }
 
-        // Vòng lặp chuyển động hoạt ảnh
+        // Vòng lặp Render
         function animate() {
             const bgGradient = ctx.createLinearGradient(0, 0, 0, height);
             bgGradient.addColorStop(0, '#07010a');
@@ -363,17 +414,6 @@
                 ctx.arc(f.x, f.y, f.size, 0, Math.PI * 2);
                 ctx.fill();
             });
-
-            ctx.save();
-            const glow = ctx.createRadialGradient(width / 2, height * 0.35, 10, width / 2, height * 0.35, 300);
-            glow.addColorStop(0, 'rgba(255, 150, 200, 0.4)');
-            glow.addColorStop(0.5, 'rgba(255, 64, 129, 0.15)');
-            glow.addColorStop(1, 'transparent');
-            ctx.fillStyle = glow;
-            ctx.beginPath();
-            ctx.arc(width / 2, height * 0.35, 300, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.restore();
 
             drawPath();
 
