@@ -43,7 +43,7 @@
         }
 
         .card {
-            background: rgba(30, 10, 25, 0.75);
+            background: rgba(30, 10, 25, 0.85);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 150, 180, 0.4);
@@ -52,7 +52,7 @@
             text-align: center;
             max-width: 550px;
             width: 90%;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.7), inset 0 0 20px rgba(255, 105, 180, 0.3);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(255, 105, 180, 0.3);
             pointer-events: auto;
             transform: scale(0.8);
             opacity: 0;
@@ -65,7 +65,7 @@
         }
 
         h1 {
-            color: #ff9ebb;
+            color: #ffb7c5;
             font-size: 2.2rem;
             margin-bottom: 15px;
             text-shadow: 0 0 15px rgba(255, 105, 180, 0.8);
@@ -83,7 +83,6 @@
             padding-right: 5px;
         }
 
-        /* Tùy chỉnh thanh cuộn cho đẹp */
         .wish-content::-webkit-scrollbar {
             width: 5px;
         }
@@ -155,8 +154,9 @@
         const petals = [];
         const butterflies = [];
         const birds = [];
+        const fireflies = [];
 
-        // Tạo cánh hoa hồng rơi
+        // Cánh hoa rơi
         for (let i = 0; i < 90; i++) {
             petals.push({
                 x: Math.random() * width,
@@ -169,7 +169,19 @@
             });
         }
 
-        // Tạo bướm bay lượn
+        // Đom đóm bay lấp lánh
+        for (let i = 0; i < 40; i++) {
+            fireflies.push({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                size: Math.random() * 2.5 + 1,
+                speedY: (Math.random() - 0.5) * 0.6,
+                speedX: (Math.random() - 0.5) * 0.6,
+                alpha: Math.random()
+            });
+        }
+
+        // Bướm
         for (let i = 0; i < 7; i++) {
             butterflies.push({
                 x: Math.random() * width,
@@ -183,7 +195,7 @@
             });
         }
 
-        // Tạo chim bay trên trời
+        // Chim
         for (let i = 0; i < 5; i++) {
             birds.push({
                 x: -100 - Math.random() * 200,
@@ -194,61 +206,59 @@
             });
         }
 
-        // --- HÀM VẼ BÔNG HOA HỒNG CHI TIẾT & THẬT ---
+        // --- HÀM VẼ HOA HỒNG THẬT VÀ SỐNG ĐỘNG (Dùng đường cong Bezier tạo cánh hoa nở) ---
         function drawRealisticRose(x, y, scale) {
             ctx.save();
             ctx.translate(x, y);
             ctx.scale(scale, scale);
 
-            // Thân cây & lá
+            // Thân cây & lá xanh
             ctx.strokeStyle = '#1b4d2e';
-            ctx.lineWidth = 5;
+            ctx.lineWidth = 4;
             ctx.beginPath();
             ctx.moveTo(0, 0);
-            ctx.quadraticCurveTo(-15, 50, -8, 100);
+            ctx.quadraticCurveTo(-12, 40, -5, 80);
             ctx.stroke();
 
-            // Lá bên trái
             ctx.fillStyle = '#2e7d32';
             ctx.beginPath();
-            ctx.ellipse(-14, 55, 14, 7, Math.PI / 4, 0, Math.PI * 2);
+            ctx.ellipse(-12, 45, 12, 6, Math.PI / 4, 0, Math.PI * 2);
             ctx.fill();
 
-            // Lá bên phải
             ctx.beginPath();
-            ctx.ellipse(10, 75, 13, 6, -Math.PI / 4, 0, Math.PI * 2);
+            ctx.ellipse(8, 65, 11, 5, -Math.PI / 4, 0, Math.PI * 2);
             ctx.fill();
 
-            // Các lớp cánh hoa hồng uốn lượn chân thực
-            const petalLayers = [
-                { r: 28, color: '#ad1457' },
-                { r: 23, color: '#c2185b' },
-                { r: 18, color: '#d81b60' },
-                { r: 13, color: '#e91e63' },
-                { r: 8,  color: '#ff4081' },
-                { r: 4,  color: '#ff80ab' }
-            ];
+            // Vẽ các cánh hoa hồng nở bằng đường cong Bezier chi tiết
+            const petalColors = ['#880e4f', '#ad1457', '#c2185b', '#d81b60', '#e91e63', '#ff4081', '#ff80ab'];
+            
+            // Lớp cánh ngoài cùng đến trong cùng
+            for (let layer = 0; layer < 5; layer++) {
+                const numPetals = 6 + layer;
+                const radius = 22 - layer * 3.5;
+                ctx.fillStyle = petalColors[layer % petalColors.length];
 
-            petalLayers.forEach((layer, idx) => {
-                ctx.fillStyle = layer.color;
-                const count = 6 + idx * 2;
-                for (let i = 0; i < count; i++) {
-                    const angle = (i / count) * Math.PI * 2 + (idx * 0.3);
-                    const px = Math.cos(angle) * (layer.r * 0.4);
-                    const py = Math.sin(angle) * (layer.r * 0.4);
+                for (let i = 0; i < numPetals; i++) {
+                    const angle = (i / numPetals) * Math.PI * 2 + (layer * 0.4);
+                    ctx.save();
+                    ctx.rotate(angle);
 
                     ctx.beginPath();
-                    ctx.ellipse(px, py, layer.r * 0.7, layer.r * 0.4, angle, 0, Math.PI * 2);
+                    ctx.moveTo(0, 0);
+                    ctx.bezierCurveTo(-radius * 0.6, radius * 0.8, radius * 0.6, radius * 0.8, 0, radius);
+                    ctx.bezierCurveTo(-radius * 0.4, radius * 0.5, radius * 0.4, radius * 0.5, 0, 0);
                     ctx.fill();
-                    // Viền nhẹ cho cánh hoa có chiều sâu
-                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-                    ctx.lineWidth = 0.8;
+                    
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+                    ctx.lineWidth = 0.5;
                     ctx.stroke();
-                }
-            });
 
-            // Tâm hoa cuộn xoắn nhẹ
-            ctx.fillStyle = '#880e4f';
+                    ctx.restore();
+                }
+            }
+
+            // Tâm hoa cuộn xoắn ở giữa
+            ctx.fillStyle = '#510522';
             ctx.beginPath();
             ctx.arc(0, 0, 4, 0, Math.PI * 2);
             ctx.fill();
@@ -256,7 +266,7 @@
             ctx.restore();
         }
 
-        // Vẽ con đường đá uốn lượn tiến vào
+        // Vẽ con đường và bụi hoa hai bên
         function drawPath() {
             ctx.save();
             
@@ -292,18 +302,18 @@
             ctx.quadraticCurveTo(width / 2 + 40, (startY + endY) / 2, width / 2 + endW / 2, endY);
             ctx.stroke();
 
-            // Hàng hoa hồng chân thực hai bên đường
+            // Hàng hoa hồng hai bên đường
             const numRoses = 10;
             for (let i = 0; i < numRoses; i++) {
                 const t = i / numRoses;
                 const pY = startY - (startY - endY) * t;
                 const currentW = startW - (startW - endW) * t;
-                const scale = (0.7 + (1 - t) * 0.6) * (1 + progress * 0.3);
+                const scale = (0.6 + (1 - t) * 0.5) * (1 + progress * 0.3);
 
-                const leftX = (width / 2 - currentW / 2) - 25 * (1 - t * 0.5);
+                const leftX = (width / 2 - currentW / 2) - 30 * (1 - t * 0.5);
                 drawRealisticRose(leftX, pY, scale);
 
-                const rightX = (width / 2 + currentW / 2) + 25 * (1 - t * 0.5);
+                const rightX = (width / 2 + currentW / 2) + 30 * (1 - t * 0.5);
                 drawRealisticRose(rightX, pY, scale);
             }
 
@@ -312,7 +322,7 @@
 
         // Vòng lặp hiển thị hoạt ảnh
         function animate() {
-            // Nền trời đêm lung linh
+            // Nền trời đêm
             const bgGradient = ctx.createLinearGradient(0, 0, 0, height);
             bgGradient.addColorStop(0, '#07010a');
             bgGradient.addColorStop(0.5, '#1e0828');
@@ -320,7 +330,22 @@
             ctx.fillStyle = bgGradient;
             ctx.fillRect(0, 0, width, height);
 
-            // Ánh sáng phát ra từ trung tâm khu vườn
+            // Đom đóm lấp lánh
+            fireflies.forEach(f => {
+                f.y += f.speedY;
+                f.x += f.speedX;
+                if (f.y < 0) f.y = height;
+                if (f.y > height) f.y = 0;
+                if (f.x < 0) f.x = width;
+                if (f.x > width) f.x = 0;
+
+                ctx.fillStyle = `rgba(255, 220, 150, ${Math.abs(Math.sin(Date.now() * 0.003 + f.x))})`;
+                ctx.beginPath();
+                ctx.arc(f.x, f.y, f.size, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            // Ánh sáng tâm vườn
             ctx.save();
             const glow = ctx.createRadialGradient(width / 2, height * 0.35, 10, width / 2, height * 0.35, 300);
             glow.addColorStop(0, 'rgba(255, 150, 200, 0.4)');
@@ -332,10 +357,9 @@
             ctx.fill();
             ctx.restore();
 
-            // Vẽ con đường và bụi hoa hồng
             drawPath();
 
-            // Cập nhật và vẽ bướm
+            // Bướm
             butterflies.forEach(b => {
                 b.x += b.vx;
                 b.y += b.vy;
@@ -348,7 +372,6 @@
                 ctx.translate(b.x, b.y);
                 ctx.fillStyle = b.color;
                 
-                // Cánh trái
                 ctx.save();
                 ctx.scale(Math.sin(b.wingAngle), 1);
                 ctx.beginPath();
@@ -356,7 +379,6 @@
                 ctx.fill();
                 ctx.restore();
 
-                // Cánh phải
                 ctx.save();
                 ctx.scale(Math.sin(b.wingAngle), 1);
                 ctx.beginPath();
@@ -367,7 +389,7 @@
                 ctx.restore();
             });
 
-            // Cập nhật và vẽ chim bay
+            // Chim
             birds.forEach(b => {
                 b.x += b.vx;
                 b.wing += 0.12;
@@ -387,7 +409,7 @@
                 ctx.restore();
             });
 
-            // Cập nhật và vẽ cánh hoa rơi
+            // Cánh hoa rơi
             petals.forEach(p => {
                 p.y += p.speedY;
                 p.x += Math.sin(p.angle) + p.speedX;
@@ -408,7 +430,7 @@
                 ctx.restore();
             });
 
-            // Xử lý chuyển động tiến vào thiệp
+            // Tiến trình chuyển động
             if (isMoving && progress < 1) {
                 progress += 0.007;
                 if (progress >= 1) {
