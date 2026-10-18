@@ -27,7 +27,7 @@
             z-index: 1;
         }
 
-        /* Overlay UI */
+        /* Giao diện nút và thiệp */
         .ui-container {
             position: fixed;
             top: 0;
@@ -122,8 +122,10 @@
     <canvas id="canvas"></canvas>
 
     <div class="ui-container">
+        <!-- Nút bấm chính xác chuẩn chữ -->
         <button id="start-btn" class="btn" onclick="startJourney()">🌹 Mời Chị Tiến Vào Khu Vườn</button>
 
+        <!-- Hộp thiệp chúc mừng 20/10 dài và ý nghĩa -->
         <div id="wish-card" class="card">
             <h1>Chúc Mừng Ngày 20/10 ✨</h1>
             <div class="wish-content">
@@ -169,15 +171,14 @@
             });
         }
 
-        // Đom đóm bay lấp lánh
+        // Đom đóm lấp lánh
         for (let i = 0; i < 40; i++) {
             fireflies.push({
                 x: Math.random() * width,
                 y: Math.random() * height,
                 size: Math.random() * 2.5 + 1,
                 speedY: (Math.random() - 0.5) * 0.6,
-                speedX: (Math.random() - 0.5) * 0.6,
-                alpha: Math.random()
+                speedX: (Math.random() - 0.5) * 0.6
             });
         }
 
@@ -206,58 +207,64 @@
             });
         }
 
-        // --- HÀM VẼ HOA HỒNG THẬT VÀ SỐNG ĐỘNG (Dùng đường cong Bezier tạo cánh hoa nở) ---
-        function drawRealisticRose(x, y, scale) {
+        // --- HÀM VẼ BÔNG HOA HỒNG HOÀN CHỈNH (Cánh hoa uốn lượn nhiều lớp chi tiết) ---
+        function drawCompleteRose(x, y, scale) {
             ctx.save();
             ctx.translate(x, y);
             ctx.scale(scale, scale);
 
-            // Thân cây & lá xanh
+            // Thân cây & lá xanh uốn lượn
             ctx.strokeStyle = '#1b4d2e';
             ctx.lineWidth = 4;
             ctx.beginPath();
             ctx.moveTo(0, 0);
-            ctx.quadraticCurveTo(-12, 40, -5, 80);
+            ctx.quadraticCurveTo(-15, 35, -8, 75);
             ctx.stroke();
 
             ctx.fillStyle = '#2e7d32';
             ctx.beginPath();
-            ctx.ellipse(-12, 45, 12, 6, Math.PI / 4, 0, Math.PI * 2);
+            ctx.ellipse(-14, 40, 13, 6, Math.PI / 4, 0, Math.PI * 2);
             ctx.fill();
 
             ctx.beginPath();
-            ctx.ellipse(8, 65, 11, 5, -Math.PI / 4, 0, Math.PI * 2);
+            ctx.ellipse(10, 55, 12, 5, -Math.PI / 4, 0, Math.PI * 2);
             ctx.fill();
 
-            // Vẽ các cánh hoa hồng nở bằng đường cong Bezier chi tiết
-            const petalColors = ['#880e4f', '#ad1457', '#c2185b', '#d81b60', '#e91e63', '#ff4081', '#ff80ab'];
-            
-            // Lớp cánh ngoài cùng đến trong cùng
-            for (let layer = 0; layer < 5; layer++) {
-                const numPetals = 6 + layer;
-                const radius = 22 - layer * 3.5;
-                ctx.fillStyle = petalColors[layer % petalColors.length];
+            // Các lớp cánh hoa hồng nở rộ tự nhiên (Dùng vòng lặp và hình ellipse/đường cong)
+            const petalLayers = [
+                { count: 8, rX: 20, rY: 12, color: '#880e4f' },
+                { count: 7, rX: 16, rY: 10, color: '#ad1457' },
+                { count: 6, rX: 12, rY: 8,  color: '#c2185b' },
+                { count: 5, rX: 8,  rY: 6,  color: '#e91e63' },
+                { count: 4, rX: 5,  rY: 4,  color: '#ff4081' }
+            ];
 
-                for (let i = 0; i < numPetals; i++) {
-                    const angle = (i / numPetals) * Math.PI * 2 + (layer * 0.4);
+            petalLayers.forEach((layer, lIdx) => {
+                ctx.fillStyle = layer.color;
+                for (let i = 0; i < layer.count; i++) {
+                    const angle = (i / layer.count) * Math.PI * 2 + (lIdx * 0.4);
+                    const dist = 4;
+                    const px = Math.cos(angle) * dist;
+                    const py = Math.sin(angle) * dist;
+
                     ctx.save();
+                    ctx.translate(px, py);
                     ctx.rotate(angle);
 
                     ctx.beginPath();
-                    ctx.moveTo(0, 0);
-                    ctx.bezierCurveTo(-radius * 0.6, radius * 0.8, radius * 0.6, radius * 0.8, 0, radius);
-                    ctx.bezierCurveTo(-radius * 0.4, radius * 0.5, radius * 0.4, radius * 0.5, 0, 0);
+                    ctx.ellipse(0, layer.rY * 0.6, layer.rX, layer.rY, 0, 0, Math.PI * 2);
                     ctx.fill();
                     
-                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
-                    ctx.lineWidth = 0.5;
+                    // Tạo viền cánh hoa sáng nhẹ có chiều sâu
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+                    ctx.lineWidth = 0.6;
                     ctx.stroke();
 
                     ctx.restore();
                 }
-            }
+            });
 
-            // Tâm hoa cuộn xoắn ở giữa
+            // Tâm hoa cuộn tròn ở giữa
             ctx.fillStyle = '#510522';
             ctx.beginPath();
             ctx.arc(0, 0, 4, 0, Math.PI * 2);
@@ -266,7 +273,7 @@
             ctx.restore();
         }
 
-        // Vẽ con đường và bụi hoa hai bên
+        // Vẽ con đường và hàng hoa hồng hai bên
         function drawPath() {
             ctx.save();
             
@@ -302,7 +309,7 @@
             ctx.quadraticCurveTo(width / 2 + 40, (startY + endY) / 2, width / 2 + endW / 2, endY);
             ctx.stroke();
 
-            // Hàng hoa hồng hai bên đường
+            // Hàng hoa hồng hoàn chỉnh hai bên đường
             const numRoses = 10;
             for (let i = 0; i < numRoses; i++) {
                 const t = i / numRoses;
@@ -311,18 +318,18 @@
                 const scale = (0.6 + (1 - t) * 0.5) * (1 + progress * 0.3);
 
                 const leftX = (width / 2 - currentW / 2) - 30 * (1 - t * 0.5);
-                drawRealisticRose(leftX, pY, scale);
+                drawCompleteRose(leftX, pY, scale);
 
                 const rightX = (width / 2 + currentW / 2) + 30 * (1 - t * 0.5);
-                drawRealisticRose(rightX, pY, scale);
+                drawCompleteRose(rightX, pY, scale);
             }
 
             ctx.restore();
         }
 
-        // Vòng lặp hiển thị hoạt ảnh
+        // Vòng lặp chuyển động hoạt ảnh
         function animate() {
-            // Nền trời đêm
+            // Nền trời đêm lung linh
             const bgGradient = ctx.createLinearGradient(0, 0, 0, height);
             bgGradient.addColorStop(0, '#07010a');
             bgGradient.addColorStop(0.5, '#1e0828');
@@ -332,12 +339,10 @@
 
             // Đom đóm lấp lánh
             fireflies.forEach(f => {
-                f.y += f.speedY;
-                f.x += f.speedX;
+                f.y += (Math.random() - 0.5) * 0.6;
+                f.x += (Math.random() - 0.5) * 0.6;
                 if (f.y < 0) f.y = height;
                 if (f.y > height) f.y = 0;
-                if (f.x < 0) f.x = width;
-                if (f.x > width) f.x = 0;
 
                 ctx.fillStyle = `rgba(255, 220, 150, ${Math.abs(Math.sin(Date.now() * 0.003 + f.x))})`;
                 ctx.beginPath();
@@ -345,7 +350,7 @@
                 ctx.fill();
             });
 
-            // Ánh sáng tâm vườn
+            // Ánh sáng trung tâm khu vườn
             ctx.save();
             const glow = ctx.createRadialGradient(width / 2, height * 0.35, 10, width / 2, height * 0.35, 300);
             glow.addColorStop(0, 'rgba(255, 150, 200, 0.4)');
@@ -359,7 +364,7 @@
 
             drawPath();
 
-            // Bướm
+            // Bướm bay
             butterflies.forEach(b => {
                 b.x += b.vx;
                 b.y += b.vy;
@@ -389,7 +394,7 @@
                 ctx.restore();
             });
 
-            // Chim
+            // Chim bay
             birds.forEach(b => {
                 b.x += b.vx;
                 b.wing += 0.12;
@@ -409,7 +414,7 @@
                 ctx.restore();
             });
 
-            // Cánh hoa rơi
+            // Cánh hoa hồng rơi
             petals.forEach(p => {
                 p.y += p.speedY;
                 p.x += Math.sin(p.angle) + p.speedX;
@@ -430,7 +435,7 @@
                 ctx.restore();
             });
 
-            // Tiến trình chuyển động
+            // Tiến trình di chuyển khi nhấn nút
             if (isMoving && progress < 1) {
                 progress += 0.007;
                 if (progress >= 1) {
