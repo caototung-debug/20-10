@@ -3,35 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Khu Vườn Hoa Hồng - Chúc Mừng Ngày 20/10</title>
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Three.js (3D Engine) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <!-- GSAP for Smooth Animations -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
-
+    <title>Khu Vườn Hoa Hồng 20-10</title>
     <style>
-        body {
+        * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
             overflow: hidden;
-            font-family: 'Quicksand', sans-serif;
             background-color: #0d0510;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: #fff;
-            user-select: none;
         }
 
-        .font-serif-custom {
-            font-family: 'Dancing Script', cursive;
-        }
-
-        #webgl-container {
+        #canvas {
             position: fixed;
             top: 0;
             left: 0;
@@ -40,612 +27,370 @@
             z-index: 1;
         }
 
-        /* Glassmorphism Card Style */
-        .glass-card {
-            background: rgba(255, 240, 245, 0.12);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5),
-                        inset 0 0 15px rgba(255, 182, 193, 0.3);
+        /* Overlay UI */
+        .ui-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            pointer-events: none;
         }
 
-        .text-glow {
-            text-shadow: 0 0 12px rgba(255, 105, 180, 0.8),
-                         0 0 24px rgba(255, 20, 147, 0.5);
+        .card {
+            background: rgba(255, 240, 245, 0.15);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 24px;
+            padding: 30px 40px;
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(255, 182, 193, 0.3);
+            pointer-events: auto;
+            transform: scale(0.8);
+            opacity: 0;
+            transition: all 1s ease-in-out;
         }
 
-        .btn-glow {
-            box-shadow: 0 0 15px rgba(244, 114, 182, 0.6);
-            transition: all 0.3s ease;
-        }
-        .btn-glow:hover {
-            box-shadow: 0 0 25px rgba(244, 114, 182, 0.9);
-            transform: translateY(-2px);
+        .card.active {
+            transform: scale(1);
+            opacity: 1;
         }
 
-        /* Custom Scrollbar for Wish Text */
-        .custom-scroll::-webkit-scrollbar {
-            width: 6px;
+        h1 {
+            color: #ffb7c5;
+            font-size: 2.2rem;
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px rgba(255, 105, 180, 0.8);
         }
-        .custom-scroll::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
+
+        p {
+            color: #fff0f5;
+            font-size: 1.05rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
         }
-        .custom-scroll::-webkit-scrollbar-thumb {
-            background: rgba(244, 114, 182, 0.5);
-            border-radius: 10px;
+
+        .btn {
+            background: linear-gradient(135deg, #ff4081, #e91e63);
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(255, 64, 129, 0.6);
+            transition: transform 0.2s, box-shadow 0.2s;
+            pointer-events: auto;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 25px rgba(255, 64, 129, 0.9);
+        }
+
+        #start-btn {
+            position: absolute;
+            bottom: 50px;
         }
     </style>
 </head>
 <body>
 
-    <!-- 3D Canvas -->
-    <div id="webgl-container"></div>
+    <canvas id="canvas"></canvas>
 
-    <!-- UI Overlay Layer -->
-    <div class="relative z-10 w-full h-screen flex flex-col justify-between p-4 md:p-8 pointer-events-none">
-        
-        <!-- Top Bar -->
-        <div class="flex justify-between items-center w-full max-w-7xl mx-auto pointer-events-auto">
-            <div class="flex items-center space-x-2 bg-black/30 backdrop-blur-md px-4 py-2 rounded-full border border-pink-500/30">
-                <i data-lucide="sparkles" class="w-5 h-5 text-pink-400 animate-pulse"></i>
-                <span class="text-sm font-semibold tracking-wide text-pink-200">20/10 Special Edition</span>
-            </div>
+    <div class="ui-container">
+        <button id="start-btn" class="btn" onclick="startJourney()">Tảo Báo Tiến Vào Khu Vườn</button>
 
-            <button id="audio-toggle" class="bg-black/40 hover:bg-black/60 backdrop-blur-md p-3 rounded-full border border-pink-500/30 text-pink-200 transition-all">
-                <i data-lucide="music" id="music-icon" class="w-5 h-5"></i>
-            </button>
-        </div>
-
-        <!-- Hero Section / Start Screen -->
-        <div id="hero-section" class="flex flex-col items-center justify-center text-center my-auto pointer-events-auto transition-opacity duration-1000">
-            <h1 class="text-4xl md:text-7xl font-bold font-serif-custom text-pink-200 text-glow mb-4">
-                Khu Vườn Mộng Mơ
-            </h1>
-            <p class="text-lg md:text-xl text-pink-100/90 max-w-lg mb-8 font-light drop-shadow-md px-4">
-                Dạo bước qua con đường hoa hồng lung linh để nhận lời chúc đặc biệt dành riêng cho ngày 20/10.
+        <div id="wish-card" class="card">
+            <h1>Chúc Mừng Ngày 20/10! 🌹</h1>
+            <p>
+                Nhân ngày Phụ nữ Việt Nam 20/10, chúc bạn luôn rạng rỡ, xinh đẹp và ngát hương như những bông hoa hồng trong khu vườn này! Mong rằng mỗi ngày trôi qua đều mang đến cho bạn niềm vui, hạnh phúc và bình yên. ✨
             </p>
-            <button id="start-btn" class="btn-glow bg-gradient-to-r from-pink-600 to-rose-500 hover:from-pink-500 hover:to-rose-400 text-white font-semibold px-8 py-4 rounded-full text-lg flex items-center space-x-3 cursor-pointer group">
-                <span>Bước Vào Khu Vườn</span>
-                <i data-lucide="arrow-right" class="w-5 h-5 group-hover:translate-x-1 transition-transform"></i>
-            </button>
-        </div>
-
-        <!-- Greeting Card Section (Initially Hidden) -->
-        <div id="card-section" class="fixed inset-0 flex items-center justify-center p-4 pointer-events-auto opacity-0 pointer-events-none transition-opacity duration-1000 z-20">
-            <div class="glass-card rounded-3xl p-6 md:p-10 max-w-xl w-full text-center relative overflow-hidden border border-pink-300/30">
-                
-                <!-- Decorative Elements -->
-                <div class="absolute -top-10 -left-10 w-32 h-32 bg-pink-500/20 rounded-full blur-2xl"></div>
-                <div class="absolute -bottom-10 -right-10 w-32 h-32 bg-rose-500/20 rounded-full blur-2xl"></div>
-
-                <div class="inline-block p-3 bg-pink-500/20 rounded-full mb-4 border border-pink-400/40">
-                    <i data-lucide="heart" class="w-8 h-8 text-pink-400 fill-pink-400 animate-bounce"></i>
-                </div>
-
-                <h2 class="text-3xl md:text-5xl font-bold font-serif-custom text-pink-200 text-glow mb-3">
-                    Chúc Mừng Ngày 20/10!
-                </h2>
-
-                <div class="w-16 h-1 bg-gradient-to-r from-transparent via-pink-400 to-transparent mx-auto mb-6"></div>
-
-                <div class="max-h-60 overflow-y-auto custom-scroll pr-2 mb-8 text-left space-y-4 text-pink-100/90 text-sm md:text-base leading-relaxed">
-                    <p>
-                        Nhân ngày Phụ Nữ Việt Nam 20/10, xin gửi tới bạn những lời chúc tốt đẹp nhất!
-                    </p>
-                    <p>
-                        Chúc bạn luôn rạng rỡ, ngát hương như những bông hoa hồng trong khu vườn này. Mong rằng mỗi ngày trôi qua đều mang đến cho bạn vô vàn niềm vui, sự yêu thương và sự bình yên trong tâm hồn.
-                    </p>
-                    <p>
-                        Hãy luôn tự tin, mỉm cười và luôn là phiên bản tuyệt vời nhất của chính mình nhé! 🌹✨
-                    </p>
-                </div>
-
-                <div class="flex flex-col sm:flex-row gap-3 justify-center">
-                    <button id="copy-btn" class="bg-white/10 hover:bg-white/20 border border-pink-300/40 text-pink-100 px-6 py-2.5 rounded-full text-sm font-medium transition-all flex items-center justify-center space-x-2">
-                        <i data-lucide="copy" class="w-4 h-4"></i>
-                        <span>Sao chép lời chúc</span>
-                    </button>
-                    <button id="replay-btn" class="bg-pink-600/80 hover:bg-pink-500/80 text-white px-6 py-2.5 rounded-full text-sm font-medium transition-all flex items-center justify-center space-x-2">
-                        <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
-                        <span>Dạo vườn lần nữa</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Footer -->
-        <div class="w-full text-center text-xs text-pink-200/50 pb-2 pointer-events-auto">
-            Chúc Bạn Một Ngày 20/10 Tràn Đầy Hạnh Phúc 🌸
+            <button class="btn" onclick="restartJourney()">Dạo Vườn Lần Nữa</button>
         </div>
     </div>
 
-    <!-- Audio Player (Synthesized Soft Ambient Music via Web Audio API) -->
     <script>
-        // Web Audio API Audio Synthesizer (Zero External File Dependencies)
-        class AmbientAudio {
-            constructor() {
-                this.ctx = null;
-                this.isPlaying = false;
-                this.oscillators = [];
-            }
-
-            init() {
-                if (this.ctx) return;
-                const AudioContext = window.AudioContext || window.webkitAudioContext;
-                this.ctx = new AudioContext();
-            }
-
-            play() {
-                this.init();
-                if (this.ctx.state === 'suspended') {
-                    this.ctx.resume();
-                }
-
-                this.isPlaying = true;
-                const notes = [261.63, 329.63, 392.00, 493.88, 523.25]; // C4, E4, G4, B4, C5
-                
-                // Create a soothing harmonic drone
-                notes.forEach((freq, i) => {
-                    const osc = this.ctx.createOscillator();
-                    const gain = this.ctx.createGain();
-                    
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
-                    
-                    // LFO for gentle pulsation
-                    const lfo = this.ctx.createOscillator();
-                    lfo.frequency.value = 0.2 + (i * 0.05);
-                    const lfoGain = this.ctx.createGain();
-                    lfoGain.gain.value = 0.02;
-                    lfo.connect(lfoGain.gain);
-                    
-                    gain.gain.setValueAtTime(0.01, this.ctx.currentTime);
-                    gain.gain.linearRampToValueAtTime(0.04 / (i + 1), this.ctx.currentTime + 3);
-
-                    osc.connect(gain);
-                    gain.connect(this.ctx.destination);
-
-                    osc.start();
-                    lfo.start();
-                    this.oscillators.push({ osc, gain, lfo });
-                });
-            }
-
-            stop() {
-                if (!this.isPlaying) return;
-                this.oscillators.forEach(({ osc, gain, lfo }) => {
-                    gain.gain.linearRampToValueAtTime(0.0001, this.ctx.currentTime + 1);
-                    setTimeout(() => {
-                        osc.stop();
-                        lfo.stop();
-                    }, 1000);
-                });
-                this.oscillators = [];
-                this.isPlaying = false;
-            }
-
-            toggle() {
-                if (this.isPlaying) this.stop();
-                else this.play();
-                return this.isPlaying;
-            }
-        }
-
-        const audio = new AmbientAudio();
-    </script>
-
-    <!-- 3D Rose Garden Logic (Three.js) -->
-    <script>
-        lucide.createIcons();
-
-        // Scene Setup
-        const container = document.getElementById('webgl-container');
-        const scene = new THREE.Scene();
-        scene.fog = new THREE.FogExp2(0x1a0926, 0.035);
-
-        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        renderer.shadowMap.enabled = true;
-        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-        container.appendChild(renderer.domElement);
-
-        // Lights
-        const ambientLight = new THREE.AmbientLight(0xd8b4fe, 0.6);
-        scene.add(ambientLight);
-
-        const dirLight = new THREE.DirectionalLight(0xffb7c5, 1.2);
-        dirLight.position.set(20, 40, 20);
-        dirLight.castShadow = true;
-        scene.add(dirLight);
-
-        const pathLight = new THREE.PointLight(0xff69b4, 2, 25);
-        pathLight.position.set(0, 2, -10);
-        scene.add(pathLight);
-
-        // Ground/Grass
-        const groundGeo = new THREE.PlaneGeometry(100, 100);
-        const groundMat = new THREE.MeshStandardMaterial({
-            color: 0x12081f,
-            roughness: 0.9,
-            metalness: 0.1
-        });
-        const ground = new THREE.Mesh(groundGeo, groundMat);
-        ground.rotation.x = -Math.PI / 2;
-        ground.receiveShadow = true;
-        scene.add(ground);
-
-        // Curved Path to Wishes
-        const pathGeo = new THREE.PlaneGeometry(3, 40, 10, 30);
-        const pathMat = new THREE.MeshStandardMaterial({
-            color: 0x3a2042,
-            roughness: 0.7,
-            side: THREE.DoubleSide
-        });
-        const path = new THREE.Mesh(pathGeo, pathMat);
-        path.rotation.x = -Math.PI / 2;
-        path.position.set(0, 0.02, -15);
-        scene.add(path);
-
-        // 3D Procedural Rose Flower Generator
-        function createRose() {
-            const roseGroup = new THREE.Group();
-
-            // Stem
-            const stemGeo = new THREE.CylinderGeometry(0.04, 0.06, 2.5, 8);
-            const stemMat = new THREE.MeshStandardMaterial({ color: 0x1e4d2b, roughness: 0.8 });
-            const stem = new THREE.Mesh(stemGeo, stemMat);
-            stem.position.y = 1.25;
-            stem.castShadow = true;
-            roseGroup.add(stem);
-
-            // Petals Bloom
-            const petalCount = 24;
-            const petalMat = new THREE.MeshStandardMaterial({
-                color: 0xe6005c,
-                roughness: 0.4,
-                metalness: 0.1,
-                side: THREE.DoubleSide
-            });
-
-            for (let i = 0; i < petalCount; i++) {
-                const progress = i / petalCount;
-                const radius = 0.1 + progress * 0.35;
-                const angle = i * 137.5 * (Math.PI / 180); // Golden angle
-
-                const petalGeo = new THREE.SphereGeometry(radius, 8, 8, 0, Math.PI * 2, 0, Math.PI / 2);
-                const petal = new THREE.Mesh(petalGeo, petalMat);
-
-                petal.scale.set(1, 0.4, 0.8);
-                petal.position.x = Math.cos(angle) * (progress * 0.25);
-                petal.position.z = Math.sin(angle) * (progress * 0.25);
-                petal.position.y = 2.4 + progress * 0.25;
-
-                petal.rotation.x = Math.PI / 4 + progress * 0.5;
-                petal.rotation.y = angle;
-                petal.castShadow = true;
-
-                roseGroup.add(petal);
-            }
-
-            // Glowing Heart Center
-            const centerLight = new THREE.PointLight(0xff6699, 0.8, 2);
-            centerLight.position.y = 2.6;
-            roseGroup.add(centerLight);
-
-            return roseGroup;
-        }
-
-        // Place Roses Along the Path
-        const rosePositions = [];
-        for (let i = -18; i <= 2; i += 2.5) {
-            // Left side
-            rosePositions.push({ x: -2.2 - Math.random() * 1.5, z: i });
-            // Right side
-            rosePositions.push({ x: 2.2 + Math.random() * 1.5, z: i });
-        }
-
-        rosePositions.forEach(pos => {
-            const rose = createRose();
-            rose.position.set(pos.x, 0, pos.z);
-            const scale = 0.7 + Math.random() * 0.5;
-            rose.scale.set(scale, scale, scale);
-            rose.rotation.y = Math.random() * Math.PI * 2;
-            scene.add(rose);
-        });
-
-        // Lanterns along the path
-        for (let i = -16; i <= 0; i += 6) {
-            [-1.8, 1.8].forEach(x => {
-                const lanternGroup = new THREE.Group();
-                
-                const poleGeo = new THREE.CylinderGeometry(0.03, 0.03, 2, 8);
-                const poleMat = new THREE.MeshStandardMaterial({ color: 0x4a3b52, metalness: 0.8 });
-                const pole = new THREE.Mesh(poleGeo, poleMat);
-                pole.position.y = 1;
-                lanternGroup.add(pole);
-
-                const bulbGeo = new THREE.SphereGeometry(0.15, 16, 16);
-                const bulbMat = new THREE.MeshBasicMaterial({ color: 0xffd700 });
-                const bulb = new THREE.Mesh(bulbGeo, bulbMat);
-                bulb.position.y = 2;
-                lanternGroup.add(bulb);
-
-                const light = new THREE.PointLight(0xffaa00, 1.2, 6);
-                light.position.y = 2;
-                lanternGroup.add(light);
-
-                lanternGroup.position.set(x, 0, i);
-                scene.add(lanternGroup);
-            });
-        }
-
-        // Falling Rose Petals
-        const petalParticleCount = 150;
-        const petalParticlesGeo = new THREE.BufferGeometry();
-        const petalPos = new Float32Array(petalParticleCount * 3);
-        const petalRot = new Float32Array(petalParticleCount * 3);
-
-        for (let i = 0; i < petalParticleCount * 3; i += 3) {
-            petalPos[i] = (Math.random() - 0.5) * 30;
-            petalPos[i + 1] = Math.random() * 15 + 2;
-            petalPos[i + 2] = (Math.random() - 0.5) * 40 - 10;
-
-            petalRot[i] = Math.random() * 0.02;
-            petalRot[i + 1] = Math.random() * 0.02;
-            petalRot[i + 2] = Math.random() * 0.02;
-        }
-
-        petalParticlesGeo.setAttribute('position', new THREE.BufferAttribute(petalPos, 3));
-
-        // Create texture canvas for petal
-        const canvas = document.createElement('canvas');
-        canvas.width = 32;
-        canvas.height = 32;
+        const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
-        ctx.fillStyle = '#ff3366';
-        ctx.beginPath();
-        ctx.arc(16, 16, 12, 0, Math.PI * 2);
-        ctx.fill();
 
-        const petalTexture = new THREE.CanvasTexture(canvas);
-        const petalParticlesMat = new THREE.PointsMaterial({
-            size: 0.25,
-            map: petalTexture,
-            transparent: true,
-            opacity: 0.8,
-            blending: THREE.AdditiveBlending,
-            depthWrite: false
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
         });
 
-        const petalSystem = new THREE.Points(petalParticlesGeo, petalParticlesMat);
-        scene.add(petalSystem);
+        // Trạng thái ứng dụng
+        let progress = 0; // Tiến trình di chuyển vào con đường (0 -> 1)
+        let isMoving = false;
 
-        // Animated Butterflies
-        class Butterfly {
-            constructor() {
-                this.group = new THREE.Group();
+        // Quản lý các đối tượng
+        const petals = [];
+        const butterflies = [];
+        const birds = [];
 
-                const wingShape = new THREE.Shape();
-                wingShape.moveTo(0, 0);
-                wingShape.quadraticCurveTo(0.3, 0.4, 0.5, 0.2);
-                wingShape.quadraticCurveTo(0.3, -0.2, 0, 0);
-
-                const wingGeo = new THREE.ShapeGeometry(wingShape);
-                const wingMat = new THREE.MeshBasicMaterial({ color: 0xffa0e6, side: THREE.DoubleSide });
-
-                this.leftWing = new THREE.Mesh(wingGeo, wingMat);
-                this.rightWing = new THREE.Mesh(wingGeo, wingMat);
-                this.rightWing.scale.x = -1;
-
-                this.group.add(this.leftWing);
-                this.group.add(this.rightWing);
-
-                this.reset();
-                scene.add(this.group);
-            }
-
-            reset() {
-                this.group.position.set(
-                    (Math.random() - 0.5) * 12,
-                    1 + Math.random() * 3,
-                    -Math.random() * 25
-                );
-                this.speed = 0.02 + Math.random() * 0.02;
-                this.wingSpeed = 0.15 + Math.random() * 0.1;
-                this.time = Math.random() * 100;
-            }
-
-            update() {
-                this.time += 0.05;
-                this.group.position.y += Math.sin(this.time) * 0.01;
-                this.group.position.x += Math.cos(this.time * 0.5) * 0.015;
-                this.group.position.z += Math.sin(this.time * 0.3) * 0.015;
-
-                const wingAngle = Math.sin(this.time * this.wingSpeed * 10) * 0.6;
-                this.leftWing.rotation.y = wingAngle;
-                this.rightWing.rotation.y = -wingAngle;
-            }
+        // Tạo cánh hoa rơi
+        for (let i = 0; i < 80; i++) {
+            petals.push({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                size: Math.random() * 6 + 4,
+                speedY: Math.random() * 1.5 + 0.5,
+                speedX: Math.random() * 1 - 0.5,
+                angle: Math.random() * Math.PI * 2,
+                spin: (Math.random() - 0.5) * 0.05
+            });
         }
 
-        const butterflies = Array.from({ length: 8 }, () => new Butterfly());
-
-        // Animated Birds Flying High
-        class Bird {
-            constructor() {
-                this.group = new THREE.Group();
-
-                const geom = new THREE.BufferGeometry();
-                const vertices = new Float32Array([
-                    -0.4, 0, -0.2,
-                     0, 0,  0.3,
-                     0.4, 0, -0.2
-                ]);
-                geom.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
-
-                const mat = new THREE.MeshBasicMaterial({ color: 0xfbcfe8, side: THREE.DoubleSide });
-                this.mesh = new THREE.Mesh(geom, mat);
-                this.group.add(this.mesh);
-
-                this.group.position.set(
-                    (Math.random() - 0.5) * 30,
-                    8 + Math.random() * 5,
-                    -Math.random() * 30 - 5
-                );
-                this.time = Math.random() * 10;
-                scene.add(this.group);
-            }
-
-            update() {
-                this.time += 0.04;
-                this.group.position.x += 0.03;
-                this.group.position.z += Math.sin(this.time * 0.5) * 0.02;
-                this.mesh.rotation.z = Math.sin(this.time * 3) * 0.2;
-
-                if (this.group.position.x > 20) {
-                    this.group.position.x = -20;
-                }
-            }
+        // Tạo bướm
+        for (let i = 0; i < 6; i++) {
+            butterflies.push({
+                x: Math.random() * width,
+                y: Math.random() * height * 0.6,
+                size: Math.random() * 8 + 8,
+                vx: (Math.random() - 0.5) * 1.5,
+                vy: (Math.random() - 0.5) * 1,
+                wingAngle: 0,
+                wingSpeed: 0.15 + Math.random() * 0.1,
+                color: ['#ff80ab', '#ea80fc', '#ffd54f'][Math.floor(Math.random() * 3)]
+            });
         }
 
-        const birds = Array.from({ length: 5 }, () => new Bird());
+        // Tạo chim
+        for (let i = 0; i < 4; i++) {
+            birds.push({
+                x: -100 - Math.random() * 200,
+                y: 50 + Math.random() * 150,
+                size: 15 + Math.random() * 10,
+                vx: 1.5 + Math.random() * 1,
+                wing: 0
+            });
+        }
 
-        // Initial Camera Position
-        camera.position.set(0, 2.5, 8);
-        camera.lookAt(0, 1.8, -5);
+        // Vẽ Hoa Hồng
+        function drawRose(x, y, scale) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.scale(scale, scale);
 
-        // Animation Loop
-        let clock = new THREE.Clock();
+            // Cành hoa
+            ctx.strokeStyle = '#2e7d32';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.quadraticCurveTo(-10, 40, -5, 80);
+            ctx.stroke();
 
+            // Lá hoa
+            ctx.fillStyle = '#388e3c';
+            ctx.beginPath();
+            ctx.ellipse(-10, 45, 12, 6, Math.PI / 4, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Cánh hoa hồng (Xếp lớp)
+            const colors = ['#880e4f', '#c2185b', '#d81b60', '#e91e63', '#ff4081'];
+            for (let i = colors.length - 1; i >= 0; i--) {
+                ctx.fillStyle = colors[i];
+                ctx.beginPath();
+                const r = (i + 1) * 6;
+                ctx.arc(0, 0, r, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Nhụy hoa
+            ctx.fillStyle = '#ff80ab';
+            ctx.beginPath();
+            ctx.arc(-2, -2, 5, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.restore();
+        }
+
+        // Vẽ con đường tiến vào
+        function drawPath() {
+            ctx.save();
+            
+            // Điểm xuất phát và điểm kết thúc của con đường
+            const startW = width * 0.5;
+            const endW = width * 0.1 + (progress * width * 0.15);
+            
+            const startY = height;
+            const endY = height * 0.45 + (progress * height * 0.1);
+
+            // Mặt đường đá
+            const gradient = ctx.createLinearGradient(0, startY, 0, endY);
+            gradient.addColorStop(0, '#4a2c40');
+            gradient.addColorStop(1, '#1a0926');
+
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.moveTo(width / 2 - startW / 2, startY);
+            ctx.quadraticCurveTo(width / 2 - 50, (startY + endY) / 2, width / 2 - endW / 2, endY);
+            ctx.lineTo(width / 2 + endW / 2, endY);
+            ctx.quadraticCurveTo(width / 2 + 50, (startY + endY) / 2, width / 2 + startW / 2, startY);
+            ctx.closePath();
+            ctx.fill();
+
+            // Hàng rào hoa hồng 2 bên đường
+            const numRoses = 12;
+            for (let i = 0; i < numRoses; i++) {
+                const t = i / numRoses;
+                const pY = startY - (startY - endY) * t;
+                const currentW = startW - (startW - endW) * t;
+                const scale = (1 - t * 0.7) * (1 + progress * 0.3);
+
+                // Hoa bên trái
+                const leftX = (width / 2 - currentW / 2) - 20 * (1 - t);
+                drawRose(leftX, pY, scale);
+
+                // Hoa bên phải
+                const rightX = (width / 2 + currentW / 2) + 20 * (1 - t);
+                drawRose(rightX, pY, scale);
+            }
+
+            ctx.restore();
+        }
+
+        // Loop Animation chính
         function animate() {
-            requestAnimationFrame(animate);
+            // Nền bầu trời đêm
+            const bgGradient = ctx.createLinearGradient(0, 0, 0, height);
+            bgGradient.addColorStop(0, '#0d0510');
+            bgGradient.addColorStop(0.6, '#2a0826');
+            bgGradient.addColorStop(1, '#4a1235');
+            ctx.fillStyle = bgGradient;
+            ctx.fillRect(0, 0, width, height);
 
-            const elapsedTime = clock.getElapsedTime();
+            // Vẽ Mặt trăng / Ánh sáng huyền ảo ở giữa
+            ctx.save();
+            const moonGlow = ctx.createRadialGradient(width / 2, height * 0.3, 10, width / 2, height * 0.3, 200);
+            moonGlow.addColorStop(0, 'rgba(255, 220, 240, 0.8)');
+            moonGlow.addColorStop(0.5, 'rgba(255, 105, 180, 0.2)');
+            moonGlow.addColorStop(1, 'transparent');
+            ctx.fillStyle = moonGlow;
+            ctx.beginPath();
+            ctx.arc(width / 2, height * 0.3, 200, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
 
-            // Animate Falling Petals
-            const positions = petalParticlesGeo.attributes.position.array;
-            for (let i = 1; i < petalParticleCount * 3; i += 3) {
-                positions[i] -= 0.02; // Downward speed
-                positions[i - 1] += Math.sin(elapsedTime + i) * 0.005; // Horizontal sway
-                if (positions[i] < 0) {
-                    positions[i] = 15;
+            // Vẽ Con Đường & Hoa Hồng
+            drawPath();
+
+            // Cập nhật & Vẽ Bướm
+            butterflies.forEach(b => {
+                b.x += b.vx;
+                b.y += b.vy;
+                b.wingAngle += b.wingSpeed;
+
+                if (b.x < 0 || b.x > width) b.vx *= -1;
+                if (b.y < 0 || b.y > height * 0.7) b.vy *= -1;
+
+                ctx.save();
+                ctx.translate(b.x, b.y);
+                ctx.fillStyle = b.color;
+                
+                // Cánh trái
+                ctx.save();
+                ctx.scale(Math.sin(b.wingAngle), 1);
+                ctx.beginPath();
+                ctx.arc(-b.size / 2, 0, b.size / 2, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+
+                // Cánh phải
+                ctx.save();
+                ctx.scale(Math.sin(b.wingAngle), 1);
+                ctx.beginPath();
+                ctx.arc(b.size / 2, 0, b.size / 2, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+
+                ctx.restore();
+            });
+
+            // Cập nhật & Vẽ Chim
+            birds.forEach(b => {
+                b.x += b.vx;
+                b.wing += 0.15;
+
+                if (b.x > width + 100) b.x = -100;
+
+                ctx.save();
+                ctx.translate(b.x, b.y);
+                ctx.strokeStyle = '#fbcfe8';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                const wingY = Math.sin(b.wing) * 8;
+                ctx.moveTo(-b.size, wingY);
+                ctx.quadraticCurveTo(-b.size / 2, -10, 0, 0);
+                ctx.quadraticCurveTo(b.size / 2, -10, b.size, wingY);
+                ctx.stroke();
+                ctx.restore();
+            });
+
+            // Cập nhật & Vẽ Cánh Hoa Rơi
+            petals.forEach(p => {
+                p.y += p.speedY;
+                p.x += Math.sin(p.angle) + p.speedX;
+                p.angle += p.spin;
+
+                if (p.y > height) {
+                    p.y = -10;
+                    p.x = Math.random() * width;
                 }
+
+                ctx.save();
+                ctx.translate(p.x, p.y);
+                ctx.rotate(p.angle);
+                ctx.fillStyle = '#ff4081';
+                ctx.beginPath();
+                ctx.ellipse(0, 0, p.size, p.size / 2, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            });
+
+            // Xử lý di chuyển camera
+            if (isMoving && progress < 1) {
+                progress += 0.008;
+                if (progress >= 1) {
+                    progress = 1;
+                    isMoving = false;
+                    document.getElementById('wish-card').classList.add('active');
+                }
+            } else if (!isMoving && progress > 0 && progress < 1) {
+                progress -= 0.01;
+                if (progress <= 0) progress = 0;
             }
-            petalParticlesGeo.attributes.position.needsUpdate = true;
 
-            // Animate Butterflies & Birds
-            butterflies.forEach(b => b.update());
-            birds.forEach(b => b.update());
+            requestAnimationFrame(animate);
+        }
 
-            renderer.render(scene, camera);
+        function startJourney() {
+            document.getElementById('start-btn').style.display = 'none';
+            isMoving = true;
+        }
+
+        function restartJourney() {
+            document.getElementById('wish-card').classList.remove('active');
+            progress = 0.99;
+            setTimeout(() => {
+                isMoving = false;
+                document.getElementById('start-btn').style.display = 'block';
+            }, 500);
         }
 
         animate();
-
-        // Responsive Resizing
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
-
-        // UI & Camera Movement Interactions
-        const startBtn = document.getElementById('start-btn');
-        const heroSection = document.getElementById('hero-section');
-        const cardSection = document.getElementById('card-section');
-        const replayBtn = document.getElementById('replay-btn');
-        const copyBtn = document.getElementById('copy-btn');
-        const audioBtn = document.getElementById('audio-toggle');
-        const musicIcon = document.getElementById('music-icon');
-
-        // Camera Walkthrough Animation
-        function startJourney() {
-            audio.play();
-
-            // Fade Out Hero
-            gsap.to(heroSection, {
-                opacity: 0,
-                duration: 0.8,
-                onComplete: () => {
-                    heroSection.classList.add('hidden');
-                }
-            });
-
-            // Smooth Camera Glide Down the Path
-            gsap.to(camera.position, {
-                z: -12,
-                y: 1.8,
-                duration: 5,
-                ease: "power2.inOut",
-                onUpdate: () => {
-                    camera.lookAt(0, 1.6, -20);
-                },
-                onComplete: () => {
-                    // Reveal Wish Card
-                    cardSection.classList.remove('pointer-events-none');
-                    gsap.to(cardSection, {
-                        opacity: 1,
-                        duration: 1
-                    });
-                }
-            });
-        }
-
-        function resetJourney() {
-            gsap.to(cardSection, {
-                opacity: 0,
-                duration: 0.5,
-                onComplete: () => {
-                    cardSection.classList.add('pointer-events-none');
-                    heroSection.classList.remove('hidden');
-                    
-                    // Reset Camera Position
-                    gsap.to(camera.position, {
-                        x: 0,
-                        y: 2.5,
-                        z: 8,
-                        duration: 2,
-                        ease: "power2.out",
-                        onUpdate: () => {
-                            camera.lookAt(0, 1.8, -5);
-                        },
-                        onComplete: () => {
-                            gsap.to(heroSection, { opacity: 1, duration: 0.5 });
-                        }
-                    });
-                }
-            });
-        }
-
-        startBtn.addEventListener('click', startJourney);
-        replayBtn.addEventListener('click', resetJourney);
-
-        // Music Toggle
-        audioBtn.addEventListener('click', () => {
-            const isPlaying = audio.toggle();
-            if (isPlaying) {
-                audioBtn.classList.add('text-pink-400', 'border-pink-400');
-            } else {
-                audioBtn.classList.remove('text-pink-400', 'border-pink-400');
-            }
-        });
-
-        // Copy Wish Text
-        copyBtn.addEventListener('click', () => {
-            const wishText = `Nhân ngày Phụ Nữ Việt Nam 20/10, xin gửi tới bạn những lời chúc tốt đẹp nhất! Chúc bạn luôn rạng rỡ, ngát hương như những bông hoa hồng trong khu vườn này. Mong rằng mỗi ngày trôi qua đều mang đến cho bạn vô vàn niềm vui, sự yêu thương và sự bình yên trong tâm hồn. 🌹✨`;
-            
-            navigator.clipboard.writeText(wishText).then(() => {
-                copyBtn.innerHTML = `<i data-lucide="check" class="w-4 h-4 text-green-400"></i><span>Đã sao chép!</span>`;
-                lucide.createIcons();
-                setTimeout(() => {
-                    copyBtn.innerHTML = `<i data-lucide="copy" class="w-4 h-4"></i><span>Sao chép lời chúc</span>`;
-                    lucide.createIcons();
-                }, 2000);
-            });
-        });
     </script>
 </body>
 </html>
