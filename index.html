@@ -42,6 +42,38 @@
             pointer-events: none;
         }
 
+        /* Khối trang đầu (Hero section) để lấp đầy không gian trống */
+        .hero-banner {
+            position: absolute;
+            top: 15%;
+            text-align: center;
+            pointer-events: auto;
+            transition: opacity 0.8s ease, transform 0.8s ease;
+            z-index: 5;
+            padding: 0 20px;
+        }
+
+        .hero-banner.hidden {
+            opacity: 0;
+            transform: translateY(-30px);
+            pointer-events: none;
+        }
+
+        .hero-banner h2 {
+            color: #ffb7c5;
+            font-size: 2.8rem;
+            font-family: 'Georgia', serif;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(255, 105, 180, 0.8);
+        }
+
+        .hero-banner p {
+            color: #fce4ec;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+        }
+
         .card {
             background: rgba(30, 10, 25, 0.85);
             backdrop-filter: blur(16px);
@@ -74,21 +106,10 @@
 
         .wish-content {
             color: #fce4ec;
-            font-size: 1.05rem;
-            line-height: 1.8;
+            font-size: 1.1rem;
+            line-height: 1.9;
             margin-bottom: 25px;
-            text-align: left;
-            max-height: 250px;
-            overflow-y: auto;
-            padding-right: 5px;
-        }
-
-        .wish-content::-webkit-scrollbar {
-            width: 5px;
-        }
-        .wish-content::-webkit-scrollbar-thumb {
-            background: rgba(255, 105, 180, 0.5);
-            border-radius: 10px;
+            text-align: center;
         }
 
         .btn {
@@ -122,17 +143,19 @@
     <canvas id="canvas"></canvas>
 
     <div class="ui-container">
-        <!-- Nút bấm chính xác chuẩn chữ -->
+        <!-- Tiêu đề trang đầu làm đầy không gian trống -->
+        <div id="hero-banner" class="hero-banner">
+            <h2>Khu Vườn Hồng 20/10 🌹</h2>
+            <p>Nơi gửi gắm những lời chúc tốt đẹp nhất dành riêng cho chị</p>
+        </div>
+
         <button id="start-btn" class="btn" onclick="startJourney()">🌹 Mời Chị Tiến Vào Khu Vườn</button>
 
-        <!-- Hộp thiệp chúc mừng 20/10 dài và ý nghĩa -->
+        <!-- Hộp thiệp chúc mừng với lời chúc tinh tế, lịch sự -->
         <div id="wish-card" class="card">
             <h1>Chúc Mừng Ngày 20/10 ✨</h1>
             <div class="wish-content">
-                <p>Gửi chị yêu quý,</p>
-                <p>Nhân dịp Ngày Phụ nữ Việt Nam 20/10, em xin gửi tới chị những lời chúc tốt đẹp, chân thành và trọn vẹn nhất. Chúc chị luôn giữ mãi nụ cười rạng rỡ trên môi, dồi dào sức khỏe, luôn tràn đầy năng lượng tích cực và gặt hái được thật nhiều thành công mới trên con đường phía trước.</p>
-                <p>Cảm ơn chị vì luôn là chỗ dựa tinh thần tuyệt vời, luôn dịu dàng, chu đáo và mang lại niềm vui cho những người xung quanh. Mong rằng ngày hôm nay và tất cả các ngày trong năm chị đều được yêu thương vô điều kiện, nhận thật nhiều hoa, quà và có những phút giây thật hạnh phúc bên gia đình và những người thân yêu!</p>
-                <p style="text-align: right; margin-top: 15px; font-style: italic;">Trân trọng và yêu thương! 🌹</p>
+                <p>Nhân ngày 20/10, chúc chị luôn tràn đầy năng lượng, tự tin và gặt hái thêm nhiều thành công mới trong công việc cũng như cuộc sống. Mong mọi điều suôn sẻ và tốt đẹp nhất sẽ luôn đến với chị!</p>
             </div>
             <button class="btn" onclick="restartJourney()">Dạo Vườn Lần Nữa</button>
         </div>
@@ -207,13 +230,12 @@
             });
         }
 
-        // --- HÀM VẼ BÔNG HOA HỒNG HOÀN CHỈNH (Cánh hoa uốn lượn nhiều lớp chi tiết) ---
+        // --- HÀM VẼ BÔNG HOA HỒNG HOÀN CHỈNH ---
         function drawCompleteRose(x, y, scale) {
             ctx.save();
             ctx.translate(x, y);
             ctx.scale(scale, scale);
 
-            // Thân cây & lá xanh uốn lượn
             ctx.strokeStyle = '#1b4d2e';
             ctx.lineWidth = 4;
             ctx.beginPath();
@@ -230,7 +252,6 @@
             ctx.ellipse(10, 55, 12, 5, -Math.PI / 4, 0, Math.PI * 2);
             ctx.fill();
 
-            // Các lớp cánh hoa hồng nở rộ tự nhiên (Dùng vòng lặp và hình ellipse/đường cong)
             const petalLayers = [
                 { count: 8, rX: 20, rY: 12, color: '#880e4f' },
                 { count: 7, rX: 16, rY: 10, color: '#ad1457' },
@@ -243,9 +264,8 @@
                 ctx.fillStyle = layer.color;
                 for (let i = 0; i < layer.count; i++) {
                     const angle = (i / layer.count) * Math.PI * 2 + (lIdx * 0.4);
-                    const dist = 4;
-                    const px = Math.cos(angle) * dist;
-                    const py = Math.sin(angle) * dist;
+                    const px = Math.cos(angle) * 4;
+                    const py = Math.sin(angle) * 4;
 
                     ctx.save();
                     ctx.translate(px, py);
@@ -255,7 +275,6 @@
                     ctx.ellipse(0, layer.rY * 0.6, layer.rX, layer.rY, 0, 0, Math.PI * 2);
                     ctx.fill();
                     
-                    // Tạo viền cánh hoa sáng nhẹ có chiều sâu
                     ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
                     ctx.lineWidth = 0.6;
                     ctx.stroke();
@@ -264,7 +283,6 @@
                 }
             });
 
-            // Tâm hoa cuộn tròn ở giữa
             ctx.fillStyle = '#510522';
             ctx.beginPath();
             ctx.arc(0, 0, 4, 0, Math.PI * 2);
@@ -296,7 +314,6 @@
             ctx.closePath();
             ctx.fill();
 
-            // Viền đá hai bên đường
             ctx.strokeStyle = '#5c3a52';
             ctx.lineWidth = 3;
             ctx.beginPath();
@@ -309,7 +326,6 @@
             ctx.quadraticCurveTo(width / 2 + 40, (startY + endY) / 2, width / 2 + endW / 2, endY);
             ctx.stroke();
 
-            // Hàng hoa hồng hoàn chỉnh hai bên đường
             const numRoses = 10;
             for (let i = 0; i < numRoses; i++) {
                 const t = i / numRoses;
@@ -329,7 +345,6 @@
 
         // Vòng lặp chuyển động hoạt ảnh
         function animate() {
-            // Nền trời đêm lung linh
             const bgGradient = ctx.createLinearGradient(0, 0, 0, height);
             bgGradient.addColorStop(0, '#07010a');
             bgGradient.addColorStop(0.5, '#1e0828');
@@ -337,7 +352,6 @@
             ctx.fillStyle = bgGradient;
             ctx.fillRect(0, 0, width, height);
 
-            // Đom đóm lấp lánh
             fireflies.forEach(f => {
                 f.y += (Math.random() - 0.5) * 0.6;
                 f.x += (Math.random() - 0.5) * 0.6;
@@ -350,7 +364,6 @@
                 ctx.fill();
             });
 
-            // Ánh sáng trung tâm khu vườn
             ctx.save();
             const glow = ctx.createRadialGradient(width / 2, height * 0.35, 10, width / 2, height * 0.35, 300);
             glow.addColorStop(0, 'rgba(255, 150, 200, 0.4)');
@@ -364,7 +377,6 @@
 
             drawPath();
 
-            // Bướm bay
             butterflies.forEach(b => {
                 b.x += b.vx;
                 b.y += b.vy;
@@ -394,7 +406,6 @@
                 ctx.restore();
             });
 
-            // Chim bay
             birds.forEach(b => {
                 b.x += b.vx;
                 b.wing += 0.12;
@@ -414,7 +425,6 @@
                 ctx.restore();
             });
 
-            // Cánh hoa hồng rơi
             petals.forEach(p => {
                 p.y += p.speedY;
                 p.x += Math.sin(p.angle) + p.speedX;
@@ -435,7 +445,6 @@
                 ctx.restore();
             });
 
-            // Tiến trình di chuyển khi nhấn nút
             if (isMoving && progress < 1) {
                 progress += 0.007;
                 if (progress >= 1) {
@@ -452,6 +461,7 @@
         }
 
         function startJourney() {
+            document.getElementById('hero-banner').classList.add('hidden');
             document.getElementById('start-btn').style.display = 'none';
             isMoving = true;
         }
@@ -461,6 +471,7 @@
             progress = 0.99;
             setTimeout(() => {
                 isMoving = false;
+                document.getElementById('hero-banner').classList.remove('hidden');
                 document.getElementById('start-btn').style.display = 'block';
             }, 600);
         }
